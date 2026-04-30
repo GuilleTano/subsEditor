@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editor de Subtítulos ASS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h2>Editor de Subtítulos ASS</h2>
+
+    <input type="file" id="fileInput"><br><br>
+
+    <label>Palabras clave (separadas por coma):</label><br> <input type="text" id="filterInput" value=""><br>
+
+    <button id="filterBtn">Filtrar</button> <button id="exportBtn">Exportar</button>
+
+    <div id="activeFilters"></div>
+
+    <hr>
+
+    <div id="editor"></div>
+
+    <script src="editor.js"></script>
+
+</body>
+
+</html>
