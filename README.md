@@ -1,0 +1,2 @@
+# subsEditor
+Editor de subtitulos
