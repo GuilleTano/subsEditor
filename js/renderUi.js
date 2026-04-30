@@ -55,9 +55,82 @@ function resetUI() {
 
     // Limpiar input de filtro
     document.getElementById("filterInput").value = "";
-
-    // Limpiar variables
-    textInLines = [];
-    dialogueObjects = [];
-    alert("Archivo exportado correctamente.");
 }
+
+// Resaltar las palabras o termianciones filtradas
+function highlightText(text, wordRegex, endingRegex) {
+
+    // Limpiar tags .ass primero
+    const clean = text.replace(/\{.*?\}/g, "");
+
+    // Resaltar palabras completas
+    let highlighted = clean.replace(wordRegex, (match) => {
+        return `<span class="highlight-word">${match}</span>`;
+    });
+
+    // Resaltar terminaciones
+    highlighted = highlighted.replace(endingRegex, (match) => {
+        return `<span class="highlight-ending">${match}</span>`;
+    });
+
+    return highlighted;
+}
+
+// Mostrar resultados en pantalla
+function renderResults(dialogueFiltered, wordRegex, endingRegex) {
+
+    // Limpiar contenido ya filtrado
+    const container = document.getElementById("editor");
+    container.innerHTML = "";
+
+    for (let obj of dialogueFiltered) {
+
+        const div = document.createElement("div");
+        div.className = "line-container";
+
+        // Timestamp
+        const parts = obj.header.split(",");
+        const time = document.createElement("div");
+        time.className = "timestamp";
+        time.textContent = `[${parts[1]} → ${parts[2]}]`;
+
+        // Label
+        const label = document.createElement("div");
+        label.className = "dialogue-label";
+        label.innerHTML = highlightText(
+            obj.text,
+            wordRegex,
+            endingRegex
+        );
+
+        // Textarea
+        const textarea = document.createElement("textarea");
+        textarea.value = obj.text;
+
+        textarea.oninput = () => {
+            obj.modifiedText = textarea.value;
+        };
+        div.appendChild(time);
+        div.appendChild(label);
+        div.appendChild(textarea);
+        container.appendChild(div);
+    }
+}
+
+// Crea el link de descarga y descarga el archivo
+function exportFile(newContent){
+
+    // Se crea un archivo descargable y una URL
+    const blob = new Blob([newContent], { type: "text/plain;charset=utf-8" });
+    const a = document.createElement("a");
+
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = "subtitulos_editados.ass";
+    a.click();
+
+    // Limpia la memoria
+    URL.revokeObjectURL(url);
+}
+
+export { renderResults, renderActiveFilters, resetUI, exportFile };

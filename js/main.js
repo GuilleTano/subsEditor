@@ -1,8 +1,26 @@
 import {fileUploader} from "./fileUploader.js";
 import {dialogueParser} from "./parser.js";
+import {applyFilter, buildRegex} from "./filters.js";
+import {renderResults, renderActiveFilters, resetUI, exportFile} from "./renderUi.js";
+import { editFile } from "./fileEdit.js";
 
-
+let originalLines = [];
 let dialogueObjects = [];
+let dialogueFiltered = [];
+
+// HAY QUE CREAR EL JSON CON LAS PALABRAS Y TERMINACIONES PARA FILTRAR
+const palabras = [
+    "tio",
+    "tia",
+    "os",
+    "chaval"
+];
+const terminaciones = [
+    "ais",
+    "áis"
+];
+
+const { wordRegex, endingRegex } = buildRegex(palabras, terminaciones);
 
 // Cargar y leer el archivo
 document.getElementById("fileInput").addEventListener("change", async function (e) {
@@ -15,39 +33,42 @@ document.getElementById("fileInput").addEventListener("change", async function (
 
     try{
         const uplaodFile = await fileUploader(file);
-        //const parseDialogue = dialogueParser(uplaodFile);
+        originalLines = uplaodFile;
         dialogueObjects = dialogueParser(uplaodFile);
 
-        console.log(parseDialogue);
         alert("Archivo cargado y parseado. Ahora puedes filtrar.");
     } catch (error){
         alert(error);
     }
 });
 
-
-
 // Filtrar archivo
 document.getElementById("filterBtn").addEventListener("click", function(){
 
-    /*
+    // HAY QUE CREAR EL JSON CON LAS PALABRAS Y TERMINACIONES PARA FILTRAR
 
-    LLAMAR AL FILTOR Y PASARLE POR PARAMETRO LAS PALABRAS Y TERMINACIONES A FILTRAR   
-       
-     */
+    dialogueFiltered = applyFilter(dialogueObjects, wordRegex, endingRegex);
+
+    renderResults(dialogueFiltered, wordRegex, endingRegex);
+    renderActiveFilters(palabras, terminaciones);
 
 });
 
-
-
-
-
 // Exportar el nuevo archivo
-//document.getElementById("exportBtn").addEventListener("click", exportFile);
+document.getElementById("exportBtn").addEventListener("click", function(){
 
-/*
-1- Cargar el archivo
-2- Parsearlo para identificar dialogos
-3- Filtrar los dialogos
-4- Guardar cambios y exportar
-*/
+    // Verifica que se cargue un archivo
+    if (!dialogueObjects.length) {
+        alert("Primero carga un archivo.");
+        return;
+    }
+
+    // Crea el nuevo archivo, aplicando los cambios
+    const newFile = editFile(dialogueFiltered, originalLines);
+
+    // Crea el link y descarga el archivo nuevo
+    exportFile(newFile);
+
+    // Limpia la UI
+    resetUI();
+});

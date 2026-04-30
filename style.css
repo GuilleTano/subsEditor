@@ -72,3 +72,18 @@ input {
     margin: 2px;
     border-radius: 4px;
 }
+
+.highlight-word {
+    color: red;
+    font-weight: bold;
+}
+
+.highlight-ending {
+    color: orange;
+    font-weight: bold;
+}
+
+.dialogue-label {
+    margin-bottom: 4px;
+    font-size: 0.9em;
+}
