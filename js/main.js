@@ -1,74 +1,62 @@
-import {fileUploader} from "./fileUploader.js";
-import {dialogueParser} from "./parser.js";
-import {applyFilter, buildRegex} from "./filters.js";
-import {renderResults, renderActiveFilters, resetUI, exportFile} from "./renderUi.js";
-import { editFile } from "./fileEdit.js";
+import { fileUploader } from "./fileUploader.js";
+import { dialogueParser } from "./parser.js";
+import { loadFilters } from "./filtersConfig.js";
+import { applyFilter, buildRegex } from "./filters.js";
+import { renderResults, renderActiveFilters, resetUI, exportFile } from "./renderUi.js";
+import { editFile, generateNewFileName } from "./fileEdit.js";
 
+let originalFileName = "";
 let originalLines = [];
 let dialogueObjects = [];
 let dialogueFiltered = [];
 
-// HAY QUE CREAR EL JSON CON LAS PALABRAS Y TERMINACIONES PARA FILTRAR
-const palabras = [
-    "tio",
-    "tia",
-    "os",
-    "chaval"
-];
-const terminaciones = [
-    "ais",
-    "áis"
-];
-
-const { wordRegex, endingRegex } = buildRegex(palabras, terminaciones);
+// Obtiene los filtros del JSON y construye los Regex
+const filtersList = await loadFilters();
+const { wordRegex, endingRegex } = buildRegex(filtersList.words, filtersList.endings);
 
 // Cargar y leer el archivo
 document.getElementById("fileInput").addEventListener("change", async function (e) {
     const file = e.target.files[0];
+    originalFileName = file.name;
     if (!file) return;
     if (!file.name.endsWith(".ass")) {
         alert("Por favor selecciona un archivo .ass");
         return;
     }
-
-    try{
+    // Carga el archivo y obtiene las lineas que son de dialogo
+    try {
         const uplaodFile = await fileUploader(file);
         originalLines = uplaodFile;
         dialogueObjects = dialogueParser(uplaodFile);
 
         alert("Archivo cargado y parseado. Ahora puedes filtrar.");
-    } catch (error){
+    } catch (error) {
         alert(error);
     }
 });
 
 // Filtrar archivo
-document.getElementById("filterBtn").addEventListener("click", function(){
-
-    // HAY QUE CREAR EL JSON CON LAS PALABRAS Y TERMINACIONES PARA FILTRAR
-
+document.getElementById("filterBtn").addEventListener("click", function () {
+    // Aplica los filtros
     dialogueFiltered = applyFilter(dialogueObjects, wordRegex, endingRegex);
-
+    // Muestra solo las lineas que cumplen los filtros
     renderResults(dialogueFiltered, wordRegex, endingRegex);
-    renderActiveFilters(palabras, terminaciones);
-
+    // Muestra los filtros activos
+    renderActiveFilters(filtersList.words, filtersList.endings);
 });
 
 // Exportar el nuevo archivo
-document.getElementById("exportBtn").addEventListener("click", function(){
-
+document.getElementById("exportBtn").addEventListener("click", function () {
     // Verifica que se cargue un archivo
     if (!dialogueObjects.length) {
         alert("Primero carga un archivo.");
         return;
     }
-
     // Crea el nuevo archivo, aplicando los cambios
     const newFile = editFile(dialogueFiltered, originalLines);
-
+    const newNameFile = generateNewFileName(originalFileName);
     // Crea el link y descarga el archivo nuevo
-    exportFile(newFile);
-
+    exportFile(newFile, newNameFile);
     // Limpia la UI
     resetUI();
 });

@@ -88,6 +88,14 @@ function renderResults(dialogueFiltered, wordRegex, endingRegex) {
         const div = document.createElement("div");
         div.className = "line-container";
 
+        // Boton para eliminar resultados
+        const closeBtn = document.createElement("button");
+        closeBtn.textContent = "✖";
+        closeBtn.className = "remove-btn";
+        closeBtn.onclick = () => {
+            div.remove();
+        };
+
         // Timestamp
         const parts = obj.header.split(",");
         const time = document.createElement("div");
@@ -110,6 +118,7 @@ function renderResults(dialogueFiltered, wordRegex, endingRegex) {
         textarea.oninput = () => {
             obj.modifiedText = textarea.value;
         };
+        div.appendChild(closeBtn);
         div.appendChild(time);
         div.appendChild(label);
         div.appendChild(textarea);
@@ -118,15 +127,14 @@ function renderResults(dialogueFiltered, wordRegex, endingRegex) {
 }
 
 // Crea el link de descarga y descarga el archivo
-function exportFile(newContent){
+function exportFile(newContent, newNameFile){
 
     // Se crea un archivo descargable y una URL
     const blob = new Blob([newContent], { type: "text/plain;charset=utf-8" });
     const a = document.createElement("a");
-
     const url = URL.createObjectURL(blob);
     a.href = url;
-    a.download = "subtitulos_editados.ass";
+    a.download = newNameFile;
     a.click();
 
     // Limpia la memoria

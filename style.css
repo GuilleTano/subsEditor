@@ -87,3 +87,16 @@ input {
     margin-bottom: 4px;
     font-size: 0.9em;
 }
+
+.remove-btn {
+    float: right;
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.remove-btn:hover {
+    color: red;
+}
