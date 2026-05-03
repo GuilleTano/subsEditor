@@ -10,13 +10,13 @@ function buildRegex(words, endings) {
     // Regex para palabras completas
     const wordRegex = new RegExp(
         `(^|\\s|[¡!¿?.,])(${safeWords.join("|")})(?=$|\\s|[¡!¿?.,])`,
-        "i"
+        "gi"
     );
 
     // Regex para terminaciones
     const endingRegex = new RegExp(
         `(${safeEndings.join("|")})(?=[^a-zA-Záéíóúüñ]|$)`,
-        "i"
+        "gi"
     );
 
     return { wordRegex, endingRegex };
