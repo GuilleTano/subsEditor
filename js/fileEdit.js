@@ -1,22 +1,19 @@
 // Guardar cambios y exportar el nuevo archivo
 function editFile(dialogueFiltered, originalLines) {
-    const map = new Map();
+    const changesMap = new Map();
 
     // Recorre los dialogos editados y los guarda
     dialogueFiltered.forEach(obj => {
-        if (obj.modifiedText !== null) {
-            map.set(obj.index, obj.header + obj.modifiedText);
+        if (obj.modifiedText !== null && obj.modifiedText !== obj.text) {
+            changesMap.set(obj.index, obj.header + obj.modifiedText);
         }
     });
 
-    if (map.size === 0) {
-        alert("No hay cambios para exportar.");
-        return;
-    }
+    if (changesMap.size === 0) return null;
 
     // Reconstruye el archivo agregando las modificaciones
     const newContent = originalLines.map((line, i) => {
-        return map.has(i) ? map.get(i) : line;
+        return changesMap.has(i) ? changesMap.get(i) : line;
     }).join("\r\n");
 
 

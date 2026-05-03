@@ -52,9 +52,6 @@ function resetUI() {
 
     // Resetear input de archivo
     document.getElementById("fileInput").value = "";
-
-    // Limpiar input de filtro
-    document.getElementById("filterInput").value = "";
 }
 
 // Resaltar las palabras o termianciones filtradas

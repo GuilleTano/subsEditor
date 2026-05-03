@@ -59,6 +59,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         // Crea el nuevo archivo, aplicando los cambios
         const newFile = editFile(dialogueFiltered, originalLines);
+        if (newFile === null){
+            alert("No hay cambios para exportar.");
+            return;
+        }
         const newNameFile = generateNewFileName(originalFileName);
         // Crea el link y descarga el archivo nuevo
         exportFile(newFile, newNameFile);
