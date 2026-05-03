@@ -9,6 +9,12 @@ let originalFileName = "";
 let originalLines = [];
 let dialogueObjects = [];
 let dialogueFiltered = [];
+function clearState() {
+    originalFileName = "";
+    originalLines = [];
+    dialogueObjects = [];
+    dialogueFiltered = [];
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
     // Obtiene los filtros del JSON y construye los Regex
@@ -68,5 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         exportFile(newFile, newNameFile);
         // Limpia la UI
         resetUI();
+        clearState();
+        renderActiveFilters(filtersList.words, filtersList.endings);
     });
 });
