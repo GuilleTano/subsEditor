@@ -10,34 +10,57 @@ function buildRegex(words, endings) {
     // Regex para palabras completas
     const wordRegex = new RegExp(
         `(^|\\s|[¡!¿?.,])(${safeWords.join("|")})(?=$|\\s|[¡!¿?.,])`,
-        "gi"
+        "i"
     );
 
     // Regex para terminaciones
     const endingRegex = new RegExp(
         `(${safeEndings.join("|")})(?=[^a-zA-Záéíóúüñ]|$)`,
-        "gi"
+        "i"
     );
 
     return { wordRegex, endingRegex };
 }
 
-// Funcion para filtrar dialogos por palabras clave
-function applyFilter(dialogueObjects, words, endings) {
+// Funcion para normalizar las palabras de la linea de dialogo (quita simbolos, números, etc)
+function normalizeWord(word) {
+    return word
+        .toLowerCase()
+        .replace(/[^a-záéíóúüñ]/gi, "");
+}
 
-    //const { wordRegex, endingRegex } = buildRegex(words, endings);
+// Funcion para filtrar dialogos por palabras clave
+function applyFilter(dialogueObjects, words, endings, excludedWordsSet) {
+
     let dialogueFiltered = [];
 
     dialogueObjects.forEach(obj => {
         // Limpia los tags que tienen las lineas en un archivo .ass
         const clean = obj.text.replace(/\{.*?\}/g, "");
+        // Separa la linea por palabra
+        const wordsInLine = clean.split(/\s+/);
+        let validEnding = false;
+        let validWord = false;
 
-        // Aplica el filtro
-        const matchWord = words.test(clean);
-        const matchEnding = endings.test(clean);
+        // Aplicamos filtro por palabra, terminación y filtro de exclusión
+        for (const word of wordsInLine) {
 
-        if (matchWord || matchEnding) {
-            //console.log(obj);
+            const normalized = normalizeWord(word);
+
+            // Si la palabra coincide con el filtro de palabras
+            if (words.test(normalized)) {
+                validWord = true;
+            }
+            // Si la terminación coincide con el filtro de endings y no se incluye en el filtro excluyente
+            if (normalized.match(endings) && !excludedWordsSet.has(normalized)) {
+                validEnding = true;
+            }
+            // Si se cumple alguno de los filtros
+            if (validWord || validEnding) {
+                break;
+            }
+        }
+        if (validWord || validEnding) {
             dialogueFiltered.push(obj);
         }
     });
@@ -45,7 +68,7 @@ function applyFilter(dialogueObjects, words, endings) {
     return dialogueFiltered;
 }
 
-export {applyFilter, buildRegex};
+export { applyFilter, buildRegex };
 
 
 /*

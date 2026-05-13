@@ -172,5 +172,8 @@
     "aros",
     "eros",
     "iros"
+  ],
+  "excludedWords":[
+    "deed"
   ]
 }

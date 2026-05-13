@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Obtiene los filtros del JSON y construye los Regex
     const filtersList = await loadFilters();
     const { wordRegex, endingRegex } = buildRegex(filtersList.words, filtersList.endings);
+    const excludedWordsSet = new Set(filtersList.excludedWords);
     // Muestra los filtros activos
     renderActiveFilters(filtersList.words, filtersList.endings);
 
@@ -51,7 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
         // Aplica los filtros
-        dialogueFiltered = applyFilter(dialogueObjects, wordRegex, endingRegex);
+        dialogueFiltered = applyFilter(dialogueObjects, wordRegex, endingRegex, excludedWordsSet);
         // Muestra solo las lineas que cumplen los filtros
         renderResults(dialogueFiltered, wordRegex, endingRegex);
     });

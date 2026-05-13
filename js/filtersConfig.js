@@ -1,6 +1,7 @@
 let filterConfig = {
     words: [],
-    endings: []
+    endings: [],
+    excludedWords: []
 };
 
 async function loadFilters() {
