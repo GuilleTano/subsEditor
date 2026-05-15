@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Aplica los filtros
         dialogueFiltered = applyFilter(dialogueObjects, wordRegex, endingRegex, excludedWordsSet);
         // Muestra solo las lineas que cumplen los filtros
-        renderResults(dialogueFiltered, wordRegex, endingRegex);
+        renderResults(dialogueFiltered, wordRegex, endingRegex, excludedWordsSet);
     });
 
     // Exportar el nuevo archivo

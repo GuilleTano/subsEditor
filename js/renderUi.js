@@ -1,3 +1,10 @@
+// Funcion para normalizar las palabras de la linea de dialogo (quita simbolos, números, etc)
+function normalizeWord(word) {
+    return word
+        .toLowerCase()
+        .replace(/[^a-záéíóúüñ]/gi, "");
+}
+
 // Mostrar en pantalla los filtros actuales
 function renderActiveFilters(words, endings) {
     const container = document.getElementById("activeFilters");
@@ -55,26 +62,55 @@ function resetUI() {
 }
 
 // Resaltar las palabras o termianciones filtradas
-function highlightText(text, wordRegex, endingRegex) {
+function highlightText(text, wordRegex, endingRegex, excludedWordsSet) {
 
     // Limpiar tags .ass primero
-    const clean = text.replace(/\{.*?\}/g, "");
+    const clean = text.replace(/\{.*?\}/g, "").replace(/\\N/g, " ").replace(/\\n/g, " ").replace(/\\h/g, " ");
 
-    // Resaltar palabras completas
-    let highlighted = clean.replace(wordRegex, (match) => {
-        return `<span class="highlight-word">${match}</span>`;
-    });
+    // Separar palabras PERO conservando espacios
+    const parts = clean.split(/(\s+)/);
 
-    // Resaltar terminaciones
-    highlighted = highlighted.replace(endingRegex, (match) => {
-        return `<span class="highlight-ending">${match}</span>`;
-    });
+    // Reconstruir la linea con highlights
+    const highlighted = parts.map(part => {
+
+        // Regex para separar la palabra (core) de los signos de putnuación
+        const match = part.match(/^([^a-záéíóúüñ]*)([a-záéíóúüñ]+)([^a-záéíóúüñ]*)$/i);
+        if (!match) return part;
+        const [, prefix, core, suffix] = match;
+
+        // Normalizar para comparar
+        const normalized = normalizeWord(core);
+
+        // Ignorar espacios o strings vacios
+        if (!normalized) {
+            return part;
+        }
+
+        // Ignorar palabras excluidas
+        if (excludedWordsSet.has(normalized)) {
+            return part;
+        }
+
+        // Resaltar palabras completas
+        if (wordRegex.test(normalized)) {
+            return `${prefix}<span class="highlight-word">${core}</span>${suffix}`;
+        }
+
+        // Resaltar terminaciones
+        if (endingRegex.test(normalized)) {
+            return `${prefix}<span class="highlight-ending">${core}</span>${suffix}`;
+        }
+
+        // Si no coincide con nada
+        return part;
+
+    }).join("");
 
     return highlighted;
 }
 
 // Mostrar resultados en pantalla
-function renderResults(dialogueFiltered, wordRegex, endingRegex) {
+function renderResults(dialogueFiltered, wordRegex, endingRegex, excludedWordsSet) {
 
     // Limpiar contenido ya filtrado
     const container = document.getElementById("editor");
@@ -105,7 +141,8 @@ function renderResults(dialogueFiltered, wordRegex, endingRegex) {
         label.innerHTML = highlightText(
             obj.text,
             wordRegex,
-            endingRegex
+            endingRegex,
+            excludedWordsSet
         );
 
         // Textarea
@@ -124,7 +161,7 @@ function renderResults(dialogueFiltered, wordRegex, endingRegex) {
 }
 
 // Crea el link de descarga y descarga el archivo
-function exportFile(newContent, newNameFile){
+function exportFile(newContent, newNameFile) {
 
     // Se crea un archivo descargable y una URL
     const blob = new Blob([newContent], { type: "text/plain;charset=utf-8" });
